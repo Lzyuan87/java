@@ -1,0 +1,88 @@
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@SpringBootApplication
+@RestController
+@RequestMapping("/customer")
+public class CustomerAccountAPI {
+
+    private Map<Integer, Customer> customers = new HashMap<>();
+    private Map<Integer, Account> accounts = new HashMap<>();
+    private int customerIdCounter = 1;
+    private int accountIdCounter = 1;
+
+    public static void main(String[] args) {
+        SpringApplication.run(CustomerAccountAPI.class, args);
+    }
+
+    // Get all customer details with paging
+    @GetMapping("/getalldetails")
+    public List<Customer> getAllCustomers(@RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+        // Sample implementation, you may fetch data from a database
+        List<Customer> customerList = new ArrayList<>(customers.values());
+        int start = page * size;
+        int end = Math.min(start + size, customerList.size());
+        return customerList.subList(start, end);
+    }
+
+    // Get customer details by ID
+    @GetMapping("/getdetailById/{id}")
+    public Customer getCustomerById(@PathVariable int id) {
+        return customers.get(id);
+    }
+
+    // Create a new customer
+    @PostMapping("/create")
+    public Customer createCustomer(@RequestBody Customer customer) {
+        customer.setCustomerId(customerIdCounter++);
+        customers.put(customer.getCustomerId(), customer);
+        return customer;
+    }
+
+    // Update an existing customer
+    @PutMapping("/update/{id}")
+    public Customer updateCustomer(@PathVariable int id, @RequestBody Customer customer) {
+        customer.setCustomerId(id);
+        customers.put(id, customer);
+        return customer;
+    }
+
+    // Delete a customer
+    @DeleteMapping("/delete/{id}")
+    public String deleteCustomer(@PathVariable int id) {
+        customers.remove(id);
+        return "Customer with ID " + id + " deleted successfully.";
+    }
+
+    // Customer class
+    static class Customer {
+        private int customerId;
+        private String phoneNumber;
+        private String email;
+        private String address;
+        private int accountId;
+
+        // Getters and setters
+        // Constructor
+        // Other methods
+    }
+
+    // Account class
+    static class Account {
+        private int accountNumber;
+        private String accountType;
+        private String accountName;
+        private double accountBalance;
+
+        // Getters and setters
+        // Constructor
+        // Other methods
+    }
+}
